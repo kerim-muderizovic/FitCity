@@ -1,0 +1,29 @@
+# .NET build artifacts
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Flutter build artifacts
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/build/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/android/.gradle/
+**/android/app/build/
+
+# IDE files
+**/.idea/
+**/.vscode/
+**/*.iml
+
+# Local Flutter SDK
+flutter_sdk/

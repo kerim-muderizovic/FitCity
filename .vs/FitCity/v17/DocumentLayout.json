@@ -1,0 +1,73 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\Prokleti projekat\\FitCity\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{59560E76-0BE0-4D91-AF6A-57E9F808D525}|src\\FitCity.Domain\\FitCity.Domain.csproj|e:\\prokleti projekat\\fitcity\\src\\fitcity.domain\\entities\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59560E76-0BE0-4D91-AF6A-57E9F808D525}|src\\FitCity.Domain\\FitCity.Domain.csproj|solutionrelative:src\\fitcity.domain\\entities\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59560E76-0BE0-4D91-AF6A-57E9F808D525}|src\\FitCity.Domain\\FitCity.Domain.csproj|e:\\prokleti projekat\\fitcity\\src\\fitcity.domain\\entities\\membership.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59560E76-0BE0-4D91-AF6A-57E9F808D525}|src\\FitCity.Domain\\FitCity.Domain.csproj|solutionrelative:src\\fitcity.domain\\entities\\membership.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59560E76-0BE0-4D91-AF6A-57E9F808D525}|src\\FitCity.Domain\\FitCity.Domain.csproj|e:\\prokleti projekat\\fitcity\\src\\fitcity.domain\\entities\\checkinlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{59560E76-0BE0-4D91-AF6A-57E9F808D525}|src\\FitCity.Domain\\FitCity.Domain.csproj|solutionrelative:src\\fitcity.domain\\entities\\checkinlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Conversation.cs",
+              "DocumentMoniker": "E:\\Prokleti projekat\\FitCity\\src\\FitCity.Domain\\Entities\\Conversation.cs",
+              "RelativeDocumentMoniker": "src\\FitCity.Domain\\Entities\\Conversation.cs",
+              "ToolTip": "E:\\Prokleti projekat\\FitCity\\src\\FitCity.Domain\\Entities\\Conversation.cs",
+              "RelativeToolTip": "src\\FitCity.Domain\\Entities\\Conversation.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T21:45:29.712Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Membership.cs",
+              "DocumentMoniker": "E:\\Prokleti projekat\\FitCity\\src\\FitCity.Domain\\Entities\\Membership.cs",
+              "RelativeDocumentMoniker": "src\\FitCity.Domain\\Entities\\Membership.cs",
+              "ToolTip": "E:\\Prokleti projekat\\FitCity\\src\\FitCity.Domain\\Entities\\Membership.cs",
+              "RelativeToolTip": "src\\FitCity.Domain\\Entities\\Membership.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T21:45:24.006Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CheckInLog.cs",
+              "DocumentMoniker": "E:\\Prokleti projekat\\FitCity\\src\\FitCity.Domain\\Entities\\CheckInLog.cs",
+              "RelativeDocumentMoniker": "src\\FitCity.Domain\\Entities\\CheckInLog.cs",
+              "ToolTip": "E:\\Prokleti projekat\\FitCity\\src\\FitCity.Domain\\Entities\\CheckInLog.cs",
+              "RelativeToolTip": "src\\FitCity.Domain\\Entities\\CheckInLog.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T21:45:19.04Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
