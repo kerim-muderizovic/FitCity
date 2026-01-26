@@ -23,7 +23,11 @@
 # IDE files
 **/.idea/
 **/.vscode/
+**/.vs/
 **/*.iml
 
 # Local Flutter SDK
 flutter_sdk/
+
+# Local env files
+**/.env
