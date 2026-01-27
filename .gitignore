@@ -1,6 +1,9 @@
 # .NET build artifacts
 **/bin/
 **/obj/
+**/artifacts/
+**/TestResults/
+**/coverage/
 *.user
 *.suo
 *.userosscache
@@ -11,6 +14,8 @@
 **/.packages
 **/.pub-cache/
 **/build/
+**/*.apk
+**/coverage/
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
 **/ios/Flutter/Flutter.podspec
@@ -32,6 +37,12 @@
 **/windows/flutter/ephemeral/
 **/linux/flutter/ephemeral/
 
+# Docker
+**/docker-compose.override.yml
+**/docker-compose.*.yml
+**/.docker/
+**/.env.*
+
 # IDE files
 **/.idea/
 **/.vscode/
@@ -43,3 +54,10 @@ flutter_sdk/
 
 # Local env files
 **/.env
+
+# Misc build/output
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+_upload/
