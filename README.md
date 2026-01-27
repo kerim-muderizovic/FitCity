@@ -27,6 +27,12 @@ docker compose down
 
 Notes:
 - The default SQL Server password is set in `FitCity/docker-compose.yml` as `Your_password123`. Update it if needed.
+- If you see `Login failed for user 'sa'`, reset local volumes so SQL Server re-initializes:
+  ```powershell
+  cd FitCity
+  docker compose down -v
+  docker compose up --build
+  ```
 
 ## Frontend (Flutter)
 Prerequisites:
