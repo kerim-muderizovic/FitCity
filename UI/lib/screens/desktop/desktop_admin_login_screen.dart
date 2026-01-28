@@ -1,8 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../services/fitcity_api.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common.dart';
-import 'desktop_shell_screen.dart';
 
 class DesktopAdminLoginScreen extends StatefulWidget {
   final String? forcedRole;
@@ -30,7 +30,6 @@ class _DesktopAdminLoginScreenState extends State<DesktopAdminLoginScreen> {
     final defaultPassword = _requireCentral ? 'central' : 'gymadmin1';
     _emailController = TextEditingController(text: defaultEmail);
     _passwordController = TextEditingController(text: defaultPassword);
-    _redirectIfAuthenticated();
   }
 
   @override
@@ -51,27 +50,15 @@ class _DesktopAdminLoginScreenState extends State<DesktopAdminLoginScreen> {
     return role == widget.forcedRole;
   }
 
-  void _redirectIfAuthenticated() {
-    final session = _api.session.value;
-    if (session == null || !_matchesForcedRole(session.user.role)) {
-      return;
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => DesktopShellScreen(forcedRole: widget.forcedRole)),
-      );
-    });
-  }
-
   Future<void> _submit() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) {
       setState(() => _error = 'Enter both email and password.');
       return;
+    }
+    if (kDebugMode) {
+      debugPrint('[DesktopAuth] Submit login (${_requireCentral ? 'central' : _requireGym ? 'gym' : 'admin'})');
     }
     setState(() {
       _submitting = true;
@@ -86,18 +73,18 @@ class _DesktopAdminLoginScreenState extends State<DesktopAdminLoginScreen> {
         await _api.login(email: email, password: password);
       }
       final role = _api.session.value?.user.role;
+      if (kDebugMode) {
+        debugPrint('[DesktopAuth] Auth success, role=$role');
+      }
       if (!_matchesForcedRole(role)) {
         _api.session.value = null;
         setState(() => _error = 'Admin access required for this workspace.');
         return;
       }
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => DesktopShellScreen(forcedRole: widget.forcedRole)),
-      );
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[DesktopAuth] Auth failed: $error');
+      }
       setState(() => _error = error.toString());
     } finally {
       if (mounted) {

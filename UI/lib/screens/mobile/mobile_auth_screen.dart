@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../services/fitcity_api.dart';
 import '../../theme/app_theme.dart';
@@ -32,6 +33,9 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
   }
 
   Future<void> _submit() async {
+    if (kDebugMode) {
+      debugPrint('[MobileAuth] Submit ${_isRegister ? 'register' : 'login'}');
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -50,12 +54,18 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
           password: _passwordController.text.trim(),
         );
       }
+      if (kDebugMode) {
+        debugPrint('[MobileAuth] Auth success, role=${_api.session.value?.user.role}');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Authenticated successfully.')),
         );
       }
     } catch (error) {
+      if (kDebugMode) {
+        debugPrint('[MobileAuth] Auth failed: $error');
+      }
       setState(() => _error = error.toString());
     } finally {
       if (mounted) {

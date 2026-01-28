@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../../data/fitcity_models.dart';
 import '../../services/fitcity_api.dart';
 import '../../services/qr_scanner_service.dart';
@@ -6,7 +7,6 @@ import '../../services/notifications_socket.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/qr_scanner_view.dart';
-import 'desktop_admin_login_screen.dart';
 
 class DesktopShellScreen extends StatefulWidget {
   final String? forcedRole;
@@ -27,7 +27,6 @@ class _DesktopShellScreenState extends State<DesktopShellScreen> {
   int _selectedIndex = 0;
   bool _shownRequestAlert = false;
   bool _requestPopupOpen = false;
-  bool _redirecting = false;
 
   List<Gym> _gyms = [];
   List<Member> _members = [];
@@ -98,7 +97,6 @@ class _DesktopShellScreenState extends State<DesktopShellScreen> {
         _topTrainers = [];
         _notifications = [];
       });
-      _redirectToLogin();
       return;
     }
     if (!_isAdmin) {
@@ -118,7 +116,6 @@ class _DesktopShellScreenState extends State<DesktopShellScreen> {
         _topTrainers = [];
         _notifications = [];
       });
-      _redirectToLogin();
       return;
     }
     setState(() {
@@ -225,26 +222,14 @@ class _DesktopShellScreenState extends State<DesktopShellScreen> {
   }
 
   void _logout() {
+    if (kDebugMode) {
+      debugPrint('[DesktopShell] Logout');
+    }
     _api.session.value = null;
     _notificationsSocket.disconnect();
     _showSnack('Signed out.', color: AppColors.muted);
-    _redirectToLogin();
   }
 
-  void _redirectToLogin() {
-    if (_redirecting) {
-      return;
-    }
-    _redirecting = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => DesktopAdminLoginScreen(forcedRole: widget.forcedRole)),
-      );
-    });
-  }
 
   void _handleNotification(Map<String, dynamic> payload) {
     if (!_isAdmin) {
@@ -381,9 +366,6 @@ class _DesktopShellScreenState extends State<DesktopShellScreen> {
   Widget build(BuildContext context) {
     final session = _api.session.value;
     final isAdmin = _isAdmin;
-    if (!isAdmin) {
-      _redirectToLogin();
-    }
     final sections = _isCentralAdmin
         ? const [
             _NavSection('Dashboard', Icons.dashboard_outlined),

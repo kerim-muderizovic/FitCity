@@ -30,8 +30,10 @@ class FitCityApi {
   bool _listenerAttached = false;
 
   Future<void> init() async {
+    _logAuth('Init start');
     _attachSessionListener();
     await restoreSession();
+    _logAuth('Init complete (session=${session.value?.user.role ?? 'none'})');
   }
 
   Future<void> restoreSession() async {
@@ -39,12 +41,15 @@ class FitCityApi {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(_tokenStorageKey);
     if (token == null || token.isEmpty) {
+      _logAuth('No stored token');
       return;
     }
     try {
       final user = await me(token: token);
       session.value = AuthSession(auth: AuthResponse(accessToken: token, expiresAtUtc: DateTime.now().toUtc()), user: user);
+      _logAuth('Session restored for ${user.role}');
     } catch (_) {
+      _logAuth('Stored token invalid, clearing');
       await prefs.remove(_tokenStorageKey);
       session.value = null;
     }
@@ -55,6 +60,7 @@ class FitCityApi {
   }
 
   Future<AuthSession> loginMobile({required String email, required String password}) async {
+    _logAuth('Login (mobile) start');
     final auth = await _postObject('/api/auth/login', {
       'email': email,
       'password': password,
@@ -62,10 +68,12 @@ class FitCityApi {
     final user = await me(token: auth.accessToken);
     final newSession = AuthSession(auth: auth, user: user);
     session.value = newSession;
+    _logAuth('Login (mobile) success for ${user.role}');
     return newSession;
   }
 
   Future<AuthSession> loginCentralAdmin({required String email, required String password}) async {
+    _logAuth('Login (central admin) start');
     final auth = await _postObject('/api/auth/admin/central/login', {
       'email': email,
       'password': password,
@@ -73,10 +81,12 @@ class FitCityApi {
     final user = await me(token: auth.accessToken);
     final newSession = AuthSession(auth: auth, user: user);
     session.value = newSession;
+    _logAuth('Login (central admin) success for ${user.role}');
     return newSession;
   }
 
   Future<AuthSession> loginGymAdmin({required String email, required String password}) async {
+    _logAuth('Login (gym admin) start');
     final auth = await _postObject('/api/auth/admin/gym/login', {
       'email': email,
       'password': password,
@@ -84,6 +94,7 @@ class FitCityApi {
     final user = await me(token: auth.accessToken);
     final newSession = AuthSession(auth: auth, user: user);
     session.value = newSession;
+    _logAuth('Login (gym admin) success for ${user.role}');
     return newSession;
   }
 
@@ -93,6 +104,7 @@ class FitCityApi {
     required String fullName,
     String? phoneNumber,
   }) async {
+    _logAuth('Register start');
     final auth = await _postObject('/api/auth/register', {
       'email': email,
       'password': password,
@@ -102,6 +114,7 @@ class FitCityApi {
     final user = await me(token: auth.accessToken);
     final newSession = AuthSession(auth: auth, user: user);
     session.value = newSession;
+    _logAuth('Register success for ${user.role}');
     return newSession;
   }
 
@@ -676,6 +689,7 @@ class FitCityApi {
     _listenerAttached = true;
     session.addListener(() {
       final current = session.value;
+      _logAuth('Session changed: ${current?.user.role ?? 'none'}');
       SharedPreferences.getInstance().then((prefs) {
         if (current == null) {
           prefs.remove(_tokenStorageKey);
@@ -684,5 +698,11 @@ class FitCityApi {
         prefs.setString(_tokenStorageKey, current.auth.accessToken);
       });
     });
+  }
+
+  void _logAuth(String message) {
+    if (kDebugMode) {
+      debugPrint('[FitCityApi] $message');
+    }
   }
 }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'fitcity_app.dart';
-import 'screens/desktop/desktop_admin_login_screen.dart';
-import 'services/fitcity_api.dart';
+import 'widgets/auth_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FitCityApi.instance.init();
-  runApp(const FitCityApp(home: DesktopAdminLoginScreen()));
+  runApp(const FitCityApp(home: AuthBootstrap(kind: AuthAppKind.desktop)));
 }
