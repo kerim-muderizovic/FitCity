@@ -8,7 +8,6 @@ import '../../services/gym_selection.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/error_mapper.dart';
 import '../../widgets/common.dart';
-import '../../widgets/current_gym_indicator.dart';
 import '../../widgets/mobile_app_bar.dart';
 import '../../widgets/mobile_nav_bar.dart';
 import 'mobile_gym_detail_screen.dart';
@@ -108,8 +107,6 @@ class _MobileGymListScreenState extends State<MobileGymListScreen> {
             children: [
               Text(context.l10n.gymListTitle('Sarajevo'),
                   style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 10),
-              const CurrentGymIndicator(),
               const SizedBox(height: 16),
               SectionTitle(title: context.l10n.gymListRecommendedTrainersTitle),
               const SizedBox(height: 8),
@@ -309,14 +306,13 @@ class _MobileGymListScreenState extends State<MobileGymListScreen> {
   }
 
   void _computeDistances(LatLng userLocation) {
+    const sarajevoLat = 43.8563;
+    const sarajevoLng = 18.4131;
     _distanceByGym.clear();
     const distance = Distance();
     for (final gym in _gyms) {
-      final lat = gym.latitude;
-      final lng = gym.longitude;
-      if (lat == null || lng == null) {
-        continue;
-      }
+      final lat = gym.latitude ?? sarajevoLat;
+      final lng = gym.longitude ?? sarajevoLng;
       final km = distance.as(LengthUnit.Kilometer, userLocation, LatLng(lat, lng));
       _distanceByGym[gym.id] = km;
     }

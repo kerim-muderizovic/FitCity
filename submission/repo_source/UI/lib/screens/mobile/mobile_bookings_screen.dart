@@ -64,8 +64,6 @@ class _MobileBookingsScreenState extends State<MobileBookingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.l10n.bookingsTitle, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
                   TabBar(
                     labelColor: AppColors.ink,
                     unselectedLabelColor: AppColors.muted,

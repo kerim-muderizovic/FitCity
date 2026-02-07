@@ -127,8 +127,6 @@ class _MobileChatScreenState extends State<MobileChatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.l10n.chatTitle, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 12),
                 if (_loading)
                   const Expanded(child: Center(child: CircularProgressIndicator()))
                 else if (_error != null)
