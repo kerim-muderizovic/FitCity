@@ -1,0 +1,14 @@
+@FitCity.Api_HostAddress = http://localhost:8081
+
+GET {{FitCity.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{FitCity.Api_HostAddress}}/api/trainers/ffffffff-ffff-ffff-ffff-ffffffffffff/availability?fromUtc=2026-01-25T00:00:00.000Z&toUtc=2026-02-08T00:00:00.000Z
+Accept: application/json
+
+###
+
+GET {{FitCity.Api_HostAddress}}/api/trainers/cccccccc-cccc-cccc-cccc-cccccccccccc/availability?fromUtc=2026-01-25T00:00:00.000Z&toUtc=2026-02-08T00:00:00.000Z
+Accept: application/json
