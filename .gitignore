@@ -1,0 +1,62 @@
+# Repository build artifacts
+/builds/*
+!/builds/desktop/
+!/builds/mobile/
+/builds/desktop/*
+/builds/mobile/*
+!/builds/desktop/.gitkeep
+!/builds/mobile/.gitkeep
+
+# Secrets and local env files
+**/.env
+**/.env.*
+!backend/.env.example
+**/.env.zip
+
+# .NET
+**/bin/
+**/obj/
+**/artifacts/
+**/TestResults/
+**/coverage/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Flutter
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/build/
+**/coverage/
+**/android/.gradle/
+**/android/app/build/
+**/android/local.properties
+**/android/**/key.properties
+**/android/**/keystore.jks
+**/android/**/keystore.properties
+**/android/**/upload-keystore.jks
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/DerivedData/
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+
+# Docker local overrides
+**/docker-compose.override.yml
+**/.docker/
+
+# IDE
+**/.idea/
+**/.vscode/
+**/.vs/
+**/*.iml
+
+# Logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
