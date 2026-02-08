@@ -1,7 +1,7 @@
 ## Docker Build
 
 To build the backend using Docker, first navigate to the `backend` folder and unzip the `.env` file using the password `fit`. After extracting the environment file, go to the `infra/docker` directory and run `docker compose build` to build the Docker containers.
-
+To have all funcs loaded you need to have internet on virtual device.
 
 ## FitCity
 
