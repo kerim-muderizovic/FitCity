@@ -241,26 +241,7 @@ app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<NotificationsHub>("/hubs/notifications");
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<FitCityDbContext>();
-    dbContext.Database.Migrate();
-    dbContext.Database.ExecuteSqlRaw(
-        """
-        UPDATE [Gyms]
-        SET [Latitude] = 43.8563
-        WHERE [Latitude] IS NULL;
-        UPDATE [Gyms]
-        SET [Longitude] = 18.4131
-        WHERE [Longitude] IS NULL;
-        UPDATE [Gyms]
-        SET [City] = 'Sarajevo'
-        WHERE [City] IS NULL OR LTRIM(RTRIM([City])) = '';
-        UPDATE [Gyms]
-        SET [Address] = 'City Center, Sarajevo'
-        WHERE [Address] IS NULL OR LTRIM(RTRIM([Address])) = '';
-        """);
-}
+await ApplyDatabaseMigrationsWithRetryAsync(app.Services, app.Logger);
 
 if (app.Environment.IsDevelopment())
 {
@@ -282,3 +263,56 @@ if (app.Environment.IsDevelopment())
 }
 
 await app.RunAsync();
+
+static async Task ApplyDatabaseMigrationsWithRetryAsync(IServiceProvider services, ILogger logger)
+{
+    const int maxAttempts = 5;
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        using var scope = services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<FitCityDbContext>();
+
+        try
+        {
+            await dbContext.Database.MigrateAsync();
+            dbContext.Database.ExecuteSqlRaw(
+                """
+                UPDATE [Gyms]
+                SET [Latitude] = 43.8563
+                WHERE [Latitude] IS NULL;
+                UPDATE [Gyms]
+                SET [Longitude] = 18.4131
+                WHERE [Longitude] IS NULL;
+                UPDATE [Gyms]
+                SET [City] = 'Sarajevo'
+                WHERE [City] IS NULL OR LTRIM(RTRIM([City])) = '';
+                UPDATE [Gyms]
+                SET [Address] = 'City Center, Sarajevo'
+                WHERE [Address] IS NULL OR LTRIM(RTRIM([Address])) = '';
+                """);
+            return;
+        }
+        catch (SqlException ex) when (IsConcurrentMigrationSqlError(ex))
+        {
+            if (attempt == maxAttempts)
+            {
+                throw;
+            }
+
+            var delay = TimeSpan.FromSeconds(Math.Pow(2, attempt));
+            logger.LogWarning(
+                ex,
+                "Database migration concurrency error on attempt {Attempt}/{MaxAttempts}. Retrying in {DelaySeconds} seconds.",
+                attempt,
+                maxAttempts,
+                delay.TotalSeconds);
+            await Task.Delay(delay);
+        }
+    }
+}
+
+static bool IsConcurrentMigrationSqlError(SqlException ex)
+{
+    return ex.Number is 1801 or 1802 or 2714 or 2627;
+}
