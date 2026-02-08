@@ -11,7 +11,7 @@
 1. Create backend env file:
    - `Copy-Item backend\\.env.example backend\\.env`
 2. Start backend services:
-   - `docker compose -f infra/docker/docker-compose.yml up --build -d`
+   - `docker compose up --build -d`
 3. Restore Flutter packages:
    - `cd ui/mobile`
    - `flutter pub get`

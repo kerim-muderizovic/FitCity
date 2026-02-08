@@ -14,7 +14,7 @@ FitCity is a Flutter client + .NET backend platform for gym management, membersh
 1. Copy env file:
    - `Copy-Item backend\\.env.example backend\\.env`
 2. Start backend stack:
-   - `docker compose -f infra/docker/docker-compose.yml up --build -d`
+   - `docker compose up --build -d`
 3. Build desktop app:
    - `powershell -ExecutionPolicy Bypass -File infra/scripts/build_desktop.ps1 -Configuration release`
 4. Build Android APK:

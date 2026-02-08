@@ -1,13 +1,13 @@
 # Deployment Notes
 
 ## Local container stack
-- Compose file: `infra/docker/docker-compose.yml`
+- Root compose file: `docker-compose.yml` (includes `infra/docker/compose.stack.yml` and loads `backend/.env`)
 - Start:
-  - `docker compose -f infra/docker/docker-compose.yml up --build -d`
+  - `docker compose up --build -d`
 - Stop:
-  - `docker compose -f infra/docker/docker-compose.yml down`
+  - `docker compose down`
 - Reset volumes:
-  - `docker compose -f infra/docker/docker-compose.yml down -v`
+  - `docker compose down -v`
 
 ## Services
 - API container: `fitcity-api` (port `8081` mapped to container `8080`)
