@@ -1,8 +1,0 @@
-{
-  "apiBaseUrl": {
-    "default": "http://localhost:8081",
-    "android": "http://10.0.2.2:8081",
-    "desktop": "http://localhost:8081",
-    "web": "http://localhost:8081"
-  }
-}

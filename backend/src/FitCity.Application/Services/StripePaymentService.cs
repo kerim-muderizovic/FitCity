@@ -179,6 +179,42 @@ public class StripePaymentService : IStripePaymentService
         return new StripeCheckoutResponse { Url = session.Url ?? string.Empty };
     }
 
+    public async Task<bool> FinalizeCheckoutSessionAsync(string? sessionId, CancellationToken cancellationToken)
+    {
+        EnsureStripeConfigured();
+        if (string.IsNullOrWhiteSpace(sessionId))
+        {
+            return false;
+        }
+
+        var normalizedSessionId = sessionId.Trim();
+        if (await _dbContext.Payments.AnyAsync(p => p.ProviderSessionId == normalizedSessionId, cancellationToken))
+        {
+            return true;
+        }
+
+        StripeConfiguration.ApiKey = _options.SecretKey;
+        var sessionService = new SessionService();
+        Session session;
+        try
+        {
+            session = await sessionService.GetAsync(normalizedSessionId, cancellationToken: cancellationToken);
+        }
+        catch (StripeException ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch Stripe session {SessionId} during redirect finalization.", normalizedSessionId);
+            return false;
+        }
+
+        if (session is null)
+        {
+            return false;
+        }
+
+        var eventId = $"redirect:{session.Id}";
+        return await ProcessCheckoutSessionAsync(session, eventId, cancellationToken);
+    }
+
     public async Task HandleWebhookAsync(string payload, string signatureHeader, CancellationToken cancellationToken)
     {
         EnsureStripeConfigured();
@@ -212,31 +248,52 @@ public class StripePaymentService : IStripePaymentService
             return;
         }
 
-        if (string.Equals(session.PaymentStatus, "unpaid", StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        var metadata = session.Metadata ?? new Dictionary<string, string>();
-        if (!metadata.TryGetValue("type", out var type) || string.IsNullOrWhiteSpace(type))
-        {
-            _logger.LogWarning("Stripe webhook missing type metadata. Session {SessionId}", session.Id);
-            return;
-        }
-
         if (await _dbContext.Payments.AnyAsync(p => p.ProviderEventId == stripeEvent.Id, cancellationToken))
         {
             return;
         }
 
+        await ProcessCheckoutSessionAsync(session, stripeEvent.Id, cancellationToken);
+    }
+
+    private async Task<bool> ProcessCheckoutSessionAsync(Session session, string eventId, CancellationToken cancellationToken)
+    {
+        if (session is null || string.IsNullOrWhiteSpace(session.Id))
+        {
+            return false;
+        }
+
+        if (string.Equals(session.PaymentStatus, "unpaid", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (await _dbContext.Payments.AnyAsync(p => p.ProviderSessionId == session.Id, cancellationToken))
+        {
+            return true;
+        }
+
+        var metadata = session.Metadata ?? new Dictionary<string, string>();
+        if (!metadata.TryGetValue("type", out var type) || string.IsNullOrWhiteSpace(type))
+        {
+            _logger.LogWarning("Stripe checkout missing type metadata. Session {SessionId}", session.Id);
+            return false;
+        }
+
         if (string.Equals(type, "membership", StringComparison.OrdinalIgnoreCase))
         {
-            await HandleMembershipPaymentAsync(session, stripeEvent.Id, cancellationToken);
+            await HandleMembershipPaymentAsync(session, eventId, cancellationToken);
+            return true;
         }
-        else if (string.Equals(type, "booking", StringComparison.OrdinalIgnoreCase))
+
+        if (string.Equals(type, "booking", StringComparison.OrdinalIgnoreCase))
         {
-            await HandleBookingPaymentAsync(session, stripeEvent.Id, cancellationToken);
+            await HandleBookingPaymentAsync(session, eventId, cancellationToken);
+            return true;
         }
+
+        _logger.LogWarning("Stripe checkout metadata contains unknown type '{Type}' for session {SessionId}.", type, session.Id);
+        return false;
     }
 
     private async Task HandleMembershipPaymentAsync(Session session, string eventId, CancellationToken cancellationToken)

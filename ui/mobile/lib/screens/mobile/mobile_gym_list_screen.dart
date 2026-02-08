@@ -105,7 +105,7 @@ class _MobileGymListScreenState extends State<MobileGymListScreen> {
           padding: const EdgeInsets.all(16),
           child: ListView(
             children: [
-              Text(context.l10n.gymListTitle('Sarajevo'),
+              Text(context.l10n.commonGyms,
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 16),
               SectionTitle(title: context.l10n.gymListRecommendedTrainersTitle),

@@ -14,5 +14,6 @@ public interface IStripePaymentService
         Guid userId,
         CancellationToken cancellationToken,
         string? requestOrigin = null);
+    Task<bool> FinalizeCheckoutSessionAsync(string? sessionId, CancellationToken cancellationToken);
     Task HandleWebhookAsync(string payload, string signatureHeader, CancellationToken cancellationToken);
 }
