@@ -9,7 +9,7 @@ FitCity is a fitness platform that allows users to discover gyms and trainers in
 
 ## Builds
 
-Desktop applications (Gym Admin and Central Admin) are located in the `builds/desktop` folder, while mobile application builds (Trainer and Member) can be found in the `builds/mobile` directory.
+Desktop applications (Gym Admin and Central Admin) are located in the unzipped desktop -> `desktop` folder, while mobile application builds (Trainer and Member) can be found in the unzipped mobile then `mobile` directory.
 
 ## Demo Login Credentials for admins
 
