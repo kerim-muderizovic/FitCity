@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
+import '../../screens/mobile/mobile_gym_list_screen.dart';
+import '../../screens/mobile/mobile_schedule_screen.dart';
 import '../../services/fitcity_api.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/error_mapper.dart';
@@ -9,7 +11,12 @@ import '../../widgets/language_selector.dart';
 import '../../widgets/mobile_app_bar.dart';
 
 class MobileAuthScreen extends StatefulWidget {
-  const MobileAuthScreen({super.key});
+  final bool managedByAuthGate;
+
+  const MobileAuthScreen({
+    super.key,
+    this.managedByAuthGate = false,
+  });
 
   @override
   State<MobileAuthScreen> createState() => _MobileAuthScreenState();
@@ -110,6 +117,25 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
     return null;
   }
 
+  void _redirectAfterSuccess() {
+    if (!mounted || widget.managedByAuthGate) {
+      return;
+    }
+
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop(true);
+      return;
+    }
+
+    final role = _api.session.value?.user.role;
+    final destination = role == 'Trainer' ? const MobileScheduleScreen() : const MobileGymListScreen();
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => destination),
+      (route) => false,
+    );
+  }
+
   Future<void> _submit() async {
     if (!_canSubmit) {
       setState(() => _submitAttempted = true);
@@ -143,6 +169,7 @@ class _MobileAuthScreenState extends State<MobileAuthScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.l10n.authSuccessSnackbar)),
         );
+        _redirectAfterSuccess();
       }
     } on FitCityApiException catch (error) {
       if (kDebugMode) {

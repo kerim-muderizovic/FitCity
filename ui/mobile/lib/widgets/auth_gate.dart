@@ -122,7 +122,7 @@ class MobileAuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     return AuthGate(
       api: FitCityApi.instance,
-      unauthenticated: const MobileAuthScreen(),
+      unauthenticated: const MobileAuthScreen(managedByAuthGate: true),
       allowSession: (session) => session.user.role == 'User' || session.user.role == 'Trainer',
       authenticatedBuilder: (session) {
         if (session.user.role == 'Trainer') {

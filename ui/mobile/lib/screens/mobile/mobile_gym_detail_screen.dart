@@ -46,7 +46,6 @@ class _MobileGymDetailScreenState extends State<MobileGymDetailScreen> {
   MembershipRequest? _membershipRequest;
   Membership? _activeMembership;
   Timer? _membershipRefreshTimer;
-  String _membershipPaymentMethod = 'Card';
   DateTime? _membershipLastUpdatedUtc;
   late final void Function(Map<String, dynamic>) _notificationHandler;
 
@@ -245,17 +244,7 @@ class _MobileGymDetailScreenState extends State<MobileGymDetailScreen> {
       await _manualPayMembership(request.id);
       return;
     }
-    if (method.toLowerCase() == 'paypal') {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.paymentPayPalUnavailable)),
-      );
-      return;
-    }
     setState(() {
-      _membershipPaymentMethod = method;
       _paying = true;
     });
     try {
@@ -416,11 +405,6 @@ class _MobileGymDetailScreenState extends State<MobileGymDetailScreen> {
                 leading: const Icon(Icons.check_circle_outline),
                 title: Text(context.l10n.paymentMarkPaid),
                 onTap: () => Navigator.of(context).pop('Manual'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.account_balance_wallet),
-                title: Text(context.l10n.gymDetailPayPal),
-                onTap: () => Navigator.of(context).pop('PayPal'),
               ),
               const SizedBox(height: 8),
             ],

@@ -33,7 +33,12 @@ public class BookingsController : ControllerBase
     public async Task<ActionResult<StripeCheckoutResponse>> Pay(Guid id, CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
-        var response = await _stripePaymentService.CreateBookingCheckoutAsync(id, userId, cancellationToken);
+        var requestOrigin = Request.GetExternalOrigin();
+        var response = await _stripePaymentService.CreateBookingCheckoutAsync(
+            id,
+            userId,
+            cancellationToken,
+            requestOrigin);
         return Ok(response);
     }
 

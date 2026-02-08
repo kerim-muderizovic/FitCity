@@ -12,6 +12,11 @@ namespace FitCity.Application.Services;
 
 public class MembershipService : IMembershipService
 {
+    private const decimal DefaultMembershipPlanPrice = 49.99m;
+    private const int DefaultMembershipPlanDurationMonths = 1;
+    private const string DefaultMembershipPlanName = "Standard Membership";
+    private const string DefaultMembershipPlanDescription = "Auto-created default membership plan.";
+
     private readonly FitCityDbContext _dbContext;
     private readonly IEmailQueueService _emailQueueService;
     private readonly IQrService _qrService;
@@ -40,6 +45,8 @@ public class MembershipService : IMembershipService
             throw new UserException("Gym not found.");
         }
 
+        var plan = await TryResolveMembershipPlanAsync(request.GymId, request.GymPlanId, cancellationToken);
+
         var now = DateTime.UtcNow;
         var hasActiveMembership = await _dbContext.Memberships
             .AsNoTracking()
@@ -53,7 +60,6 @@ public class MembershipService : IMembershipService
         }
 
         var existingRequest = await _dbContext.MembershipRequests
-            .AsNoTracking()
             .Where(r => r.UserId == userId && r.GymId == request.GymId)
             .OrderByDescending(r => r.RequestedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
@@ -62,6 +68,11 @@ public class MembershipService : IMembershipService
             && existingRequest.Status != MembershipRequestStatus.Cancelled
             && existingRequest.PaymentStatus != PaymentStatus.Paid)
         {
+            if (plan is not null && existingRequest.GymPlanId != plan.Id)
+            {
+                existingRequest.GymPlanId = plan.Id;
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
             return MapRequest(existingRequest);
         }
 
@@ -70,7 +81,7 @@ public class MembershipService : IMembershipService
             Id = Guid.NewGuid(),
             UserId = userId,
             GymId = request.GymId,
-            GymPlanId = request.GymPlanId,
+            GymPlanId = plan?.Id,
             Status = MembershipRequestStatus.Pending,
             PaymentStatus = PaymentStatus.Unpaid,
             RequestedAtUtc = now
@@ -172,6 +183,7 @@ public class MembershipService : IMembershipService
         if (approve)
         {
             var now = DateTime.UtcNow;
+            var plan = await TryResolveMembershipPlanAsync(request.GymId, request.GymPlanId, cancellationToken);
             var hasActiveMembership = await _dbContext.Memberships
                 .AsNoTracking()
                 .AnyAsync(m => m.UserId == request.UserId
@@ -186,6 +198,7 @@ public class MembershipService : IMembershipService
             request.ApprovedAtUtc = now;
             request.ApprovedByUserId = adminUserId;
             request.PaymentStatus = PaymentStatus.Unpaid;
+            request.GymPlanId = plan?.Id;
             request.RejectedAtUtc = null;
             request.RejectedByUserId = null;
             request.RejectionReason = null;
@@ -383,17 +396,10 @@ public class MembershipService : IMembershipService
 
         decimal planPrice = 0m;
         var durationMonths = 1;
-        if (membershipRequest.GymPlanId.HasValue)
-        {
-            var plan = await _dbContext.GymPlans
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == membershipRequest.GymPlanId.Value, cancellationToken);
-            if (plan != null)
-            {
-                planPrice = plan.Price;
-                durationMonths = Math.Max(1, plan.DurationMonths);
-            }
-        }
+        var plan = await ResolveMembershipPlanAsync(membershipRequest.GymId, membershipRequest.GymPlanId, cancellationToken);
+        membershipRequest.GymPlanId = plan.Id;
+        planPrice = plan.Price;
+        durationMonths = Math.Max(1, plan.DurationMonths);
 
         var paymentMethod = PaymentMethod.Card;
         if (!string.IsNullOrWhiteSpace(request.PaymentMethod)
@@ -617,6 +623,113 @@ public class MembershipService : IMembershipService
         EndDateUtc = membership.EndDateUtc,
         Status = membership.Status.ToString()
     };
+
+    private async Task<GymPlan> ResolveMembershipPlanAsync(Guid gymId, Guid? requestedPlanId, CancellationToken cancellationToken)
+    {
+        var plan = await TryResolveMembershipPlanAsync(gymId, requestedPlanId, cancellationToken);
+        if (plan is null)
+        {
+            plan = await EnsureDefaultMembershipPlanAsync(gymId, cancellationToken);
+        }
+
+        return plan;
+    }
+
+    private async Task<GymPlan?> TryResolveMembershipPlanAsync(Guid gymId, Guid? requestedPlanId, CancellationToken cancellationToken)
+    {
+        GymPlan? plan = null;
+
+        if (requestedPlanId.HasValue)
+        {
+            plan = await _dbContext.GymPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    p => p.Id == requestedPlanId.Value && p.GymId == gymId && p.IsActive,
+                    cancellationToken);
+        }
+
+        plan ??= await _dbContext.GymPlans
+            .AsNoTracking()
+            .Where(p => p.GymId == gymId && p.IsActive)
+            .OrderBy(p => p.Price)
+            .ThenBy(p => p.DurationMonths)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return plan;
+    }
+
+    private async Task<GymPlan> EnsureDefaultMembershipPlanAsync(Guid gymId, CancellationToken cancellationToken)
+    {
+        var template = await _dbContext.GymPlans
+            .AsNoTracking()
+            .Where(p => p.IsActive && p.Price > 0m && p.DurationMonths > 0)
+            .OrderBy(p => p.Price)
+            .ThenBy(p => p.DurationMonths)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var fallbackPrice = template?.Price ?? DefaultMembershipPlanPrice;
+        var fallbackDurationMonths = template?.DurationMonths ?? DefaultMembershipPlanDurationMonths;
+        var fallbackName = string.IsNullOrWhiteSpace(template?.Name)
+            ? DefaultMembershipPlanName
+            : template.Name;
+        var fallbackDescription = string.IsNullOrWhiteSpace(template?.Description)
+            ? DefaultMembershipPlanDescription
+            : template.Description;
+
+        var existing = await _dbContext.GymPlans
+            .Where(p => p.GymId == gymId)
+            .OrderByDescending(p => p.IsActive)
+            .ThenBy(p => p.Price)
+            .ThenBy(p => p.DurationMonths)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (existing is not null)
+        {
+            var changed = false;
+            if (!existing.IsActive)
+            {
+                existing.IsActive = true;
+                changed = true;
+            }
+            if (existing.Price <= 0m)
+            {
+                existing.Price = fallbackPrice;
+                changed = true;
+            }
+            if (existing.DurationMonths <= 0)
+            {
+                existing.DurationMonths = fallbackDurationMonths;
+                changed = true;
+            }
+            if (string.IsNullOrWhiteSpace(existing.Name))
+            {
+                existing.Name = fallbackName;
+                changed = true;
+            }
+
+            if (changed)
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return existing;
+        }
+
+        var plan = new GymPlan
+        {
+            Id = Guid.NewGuid(),
+            GymId = gymId,
+            Name = fallbackName,
+            Description = fallbackDescription,
+            Price = fallbackPrice,
+            DurationMonths = fallbackDurationMonths,
+            IsActive = true
+        };
+
+        _dbContext.GymPlans.Add(plan);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return plan;
+    }
 
     private async Task<Guid> GetGymIdForAdminAsync(Guid adminUserId, CancellationToken cancellationToken)
     {

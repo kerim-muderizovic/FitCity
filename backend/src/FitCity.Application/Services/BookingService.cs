@@ -112,6 +112,10 @@ public class BookingService : IBookingService
         if (!string.IsNullOrWhiteSpace(request.PaymentMethod)
             && Enum.TryParse<PaymentMethod>(request.PaymentMethod, true, out var parsedPayment))
         {
+            if (parsedPayment == PaymentMethod.PayPal)
+            {
+                throw new UserException("PayPal is not supported.");
+            }
             paymentMethod = parsedPayment;
         }
 
@@ -324,9 +328,9 @@ public class BookingService : IBookingService
             throw new UserException("You can only pay for your own booking.");
         }
 
-        if (session.PaymentMethod != PaymentMethod.Card && session.PaymentMethod != PaymentMethod.PayPal)
+        if (session.PaymentMethod != PaymentMethod.Card)
         {
-            throw new UserException("Only card or PayPal bookings can be paid online.");
+            throw new UserException("Only card bookings can be paid online.");
         }
 
         if (session.PaymentStatus == PaymentStatus.Paid)

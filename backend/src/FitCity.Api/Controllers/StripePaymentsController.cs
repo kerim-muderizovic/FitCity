@@ -24,7 +24,12 @@ public class StripePaymentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
-        var response = await _stripePaymentService.CreateMembershipCheckoutAsync(requestId, userId, cancellationToken);
+        var requestOrigin = Request.GetExternalOrigin();
+        var response = await _stripePaymentService.CreateMembershipCheckoutAsync(
+            requestId,
+            userId,
+            cancellationToken,
+            requestOrigin);
         return Ok(response);
     }
 
@@ -35,7 +40,12 @@ public class StripePaymentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
-        var response = await _stripePaymentService.CreateBookingCheckoutAsync(bookingId, userId, cancellationToken);
+        var requestOrigin = Request.GetExternalOrigin();
+        var response = await _stripePaymentService.CreateBookingCheckoutAsync(
+            bookingId,
+            userId,
+            cancellationToken,
+            requestOrigin);
         return Ok(response);
     }
 }

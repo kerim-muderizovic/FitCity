@@ -18,7 +18,8 @@ FitCity is a Flutter client + .NET backend platform for gym management, membersh
 3. Build desktop app:
    - `powershell -ExecutionPolicy Bypass -File infra/scripts/build_desktop.ps1 -Configuration release`
 4. Build Android APK:
-   - `powershell -ExecutionPolicy Bypass -File infra/scripts/build_apk.ps1`
+   - `powershell -ExecutionPolicy Bypass -File infra/scripts/build_apk.ps1 -ApiBaseUrl http://10.0.2.2:8081`
+   - or set `FITCITY_API_BASE_URL` before running the script.
 
 ## Key endpoints
 - API: `http://localhost:8081`
