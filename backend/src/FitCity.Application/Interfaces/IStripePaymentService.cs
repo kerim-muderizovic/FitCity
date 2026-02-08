@@ -4,7 +4,15 @@ namespace FitCity.Application.Interfaces;
 
 public interface IStripePaymentService
 {
-    Task<StripeCheckoutResponse> CreateMembershipCheckoutAsync(Guid requestId, Guid userId, CancellationToken cancellationToken);
-    Task<StripeCheckoutResponse> CreateBookingCheckoutAsync(Guid bookingId, Guid userId, CancellationToken cancellationToken);
+    Task<StripeCheckoutResponse> CreateMembershipCheckoutAsync(
+        Guid requestId,
+        Guid userId,
+        CancellationToken cancellationToken,
+        string? requestOrigin = null);
+    Task<StripeCheckoutResponse> CreateBookingCheckoutAsync(
+        Guid bookingId,
+        Guid userId,
+        CancellationToken cancellationToken,
+        string? requestOrigin = null);
     Task HandleWebhookAsync(string payload, string signatureHeader, CancellationToken cancellationToken);
 }

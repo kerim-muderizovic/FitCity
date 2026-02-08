@@ -345,7 +345,6 @@ class _MobileBookingScreenState extends State<MobileBookingScreen> {
                                   underline: const SizedBox.shrink(),
                                   items: [
                                     DropdownMenuItem(value: 'Card', child: Text(context.l10n.bookingPaymentCard)),
-                                    DropdownMenuItem(value: 'PayPal', child: Text(context.l10n.bookingPaymentPayPal)),
                                     DropdownMenuItem(value: 'Cash', child: Text(context.l10n.bookingPaymentCash)),
                                   ],
                                   onChanged: (value) {

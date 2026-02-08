@@ -329,8 +329,7 @@ class MobileChatDetailScreen extends StatefulWidget {
         related.sort((a, b) => b.startUtc.compareTo(a.startUtc));
         final latest = related.isNotEmpty ? related.first : null;
         final pending = related.firstWhere(
-          (b) => (b.paymentMethod.toLowerCase() == 'card' || b.paymentMethod.toLowerCase() == 'paypal')
-              && b.paymentStatus.toLowerCase() == 'unpaid',
+          (b) => b.paymentMethod.toLowerCase() == 'card' && b.paymentStatus.toLowerCase() == 'unpaid',
           orElse: () => Booking(
             id: '',
             userId: '',

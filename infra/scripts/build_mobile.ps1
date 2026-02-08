@@ -23,9 +23,18 @@ Push-Location $uiDir
 try {
   flutter pub get
 
+  $resolvedApiBaseUrl = $ApiBaseUrl
+  if (-not $resolvedApiBaseUrl -and $env:FITCITY_API_BASE_URL) {
+    $resolvedApiBaseUrl = $env:FITCITY_API_BASE_URL
+  }
+
+  if ($Configuration -eq "release" -and -not $resolvedApiBaseUrl) {
+    throw "Release build requires API base URL. Pass -ApiBaseUrl or set FITCITY_API_BASE_URL."
+  }
+
   $defineArgs = @()
-  if ($ApiBaseUrl) {
-    $defineArgs += "--dart-define=FITCITY_API_BASE_URL=$ApiBaseUrl"
+  if ($resolvedApiBaseUrl) {
+    $defineArgs += "--dart-define=FITCITY_API_BASE_URL=$resolvedApiBaseUrl"
   }
 
   if ($AppBundle) {
